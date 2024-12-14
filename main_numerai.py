@@ -27,7 +27,7 @@ import functools
 import gc
 import time
 
-pd.options.mode.chained_assignment = None  # Ignore Setting With Copy Warning
+pd.options.mode.chained_assignment = None 
 
 PADDED_Y_VALUE = -2
 PADDED_INDEX_VALUE = -2
