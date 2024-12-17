@@ -1865,6 +1865,45 @@ def compute_cv_tuning(sweep_config: dict, train_data: pd.DataFrame, model_base, 
     save_best_models(project_name, sweep_id, params, 'k_fold_score', top_k=top_k)
     return sweep_id, hp
 
+def plot_cv_indices(cv, X, y, ax, n_splits, lw=10):
+    """Create a sample plot for indices of a cross-validation object."""
+
+    # Generate the training/testing visualizations for each CV split
+    for ii, (tr, tt) in enumerate(cv.split(X=X, y=y, groups=None)):
+        # Fill in indices with the training/test groups
+        indices = np.array([np.nan] * len(X))
+        indices[tt] = 1
+        indices[tr] = 0
+
+        # Visualize the results
+        ax.scatter(range(len(indices)), [ii + 0.5] * len(indices),
+                   c=indices, marker='_', lw=lw, cmap=cmap_cv,
+                   vmin=-.2, vmax=1.2)
+
+    # Plot the data classes and groups at the end
+    ax.scatter(range(len(X)), [ii + 1 + 0.5] * len(X),
+               c=y, marker='_', lw=lw, cmap=cmap_data)
+
+    # Formatting
+    yticklabels = list(range(n_splits)) + ['class']
+    ax.set(yticks=np.arange(n_splits + 1) + 0.5, yticklabels=yticklabels,
+           xlabel='Sample index', ylabel="CV iteration",
+           ylim=[n_splits + 1.2, -.1], xlim=[0, len(X)])
+    ax.set_title('{}'.format(type(cv).__name__), fontsize=15)
+    return ax
+
+
+def plot_cv(cv, X, y):
+    this_cv = cv
+    fig, ax = plt.subplots(figsize=(10, 5))
+    plot_cv_indices(this_cv, X, y, ax, cv.n_splits)
+
+    ax.legend([Patch(color=cmap_cv(.8)), Patch(color=cmap_cv(.02))],
+              ['Validation set', 'Training set'], loc=(1.02, .8))
+    plt.tight_layout()
+    fig.subplots_adjust(right=.7)
+    plt.show()
+
 
 import logging
 from numerapi import NumerAPI
