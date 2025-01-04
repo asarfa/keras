@@ -1,47 +1,6 @@
-# Objective coefficients (cost_matrix can be used directly)
-c = compute_total_cost(EOM, n_next_dates, n_months, cost_matrix, incremental_new_positions, time_to_maturity)
+from openpyxl.utils.dataframe import dataframe_to_rows
+rows = dataframe_to_rows(df)
 
-# Constraints
-LCR_constraint = compute_LCR_target(combined_existing_positions, constraint_parameters)
-total_stock_constraint = compute_totalstock_target(combined_existing_positions)
-monthly_concent_constraint = compute_monthlyconcent_target(
-    combined_existing_positions, constraint_parameters, n_next_dates, decision_variables
-)
-
-# Convert constraints to A_ub and b_ub
-A_ub = np.vstack([
-    -LCR_constraint.LHS.flatten(),  # Flip the sign for ">= constraints"
-    total_stock_constraint.LHS.flatten(),
-    monthly_concent_constraint.LHS.flatten()
-])
-b_ub = np.hstack([
-    -LCR_constraint.RHD.flatten(),
-    total_stock_constraint.RHD.flatten(),
-    monthly_concent_constraint.RHD.flatten()
-])
-
-# Bounds for decision variables (non-negative)
-bounds = [(0, None)] * num_vars
-
-# Solve the linear programming problem
-result = linprog(c, A_ub=A_ub, b_ub=b_ub, bounds=bounds, method='simplex')
-
-
-
-
-
-
-# Add LCR constraints as individual scalar constraints
-LCR_diff = scalar_constraints(x0, compute_LCR_target, [combined_existing_positions, constraint_parameters])
-for diff in LCR_diff:
-    constraints_list.append({"type": "ineq", "fun": lambda x, d=diff: d})
-
-# Add total stock constraints as individual scalar constraints
-total_stock_diff = scalar_constraints(x0, compute_totalstock_target, [combined_existing_positions])
-for diff in total_stock_diff:
-    constraints_list.append({"type": "ineq", "fun": lambda x, d=diff: -d})
-
-# Add monthly concentration constraints as individual scalar constraints
-monthly_conc_diff = scalar_constraints(x0, compute_monthlyconcent_target, [combined_existing_positions, constraint_parameters, n_next_dates, x0])
-for diff in monthly_conc_diff:
-    constraints_list.append({"type": "ineq", "fun": lambda x, d=diff: -d})
+for r_idx, row in enumerate(rows, 1):
+    for c_idx, value in enumerate(row, 1):
+         ws.cell(row=r_idx, column=c_idx, value=value)
