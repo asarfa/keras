@@ -4,3 +4,14 @@ rows = dataframe_to_rows(df)
 for r_idx, row in enumerate(rows, 1):
     for c_idx, value in enumerate(row, 1):
          ws.cell(row=r_idx, column=c_idx, value=value)
+
+def dump_object(obj, file_path):
+    os.makedirs('/'.join(file_path.split('/')[:-1]), exist_ok=True)
+    with open(file_path, 'wb') as file:
+        pickle.dump(obj, file)
+
+
+def load_object(file_path):
+    with open(file_path, 'rb') as file:
+        obj = pickle.load(file)
+    return obj
